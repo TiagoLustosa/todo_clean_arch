@@ -1,16 +1,49 @@
-# todo_list
+# **Todo List**
 
-A new Flutter project.
+## **Overview**
+A simple and structured Todo List application built with **Flutter**, following the principles of **Clean Architecture**.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## **Features**
+- Add, update, and delete tasks.
+- Mark tasks as completed or pending.
+- Clear separation of concerns using Clean Architecture principles.
+- Fully tested with unit tests.
 
-A few resources to get you started if this is your first Flutter project:
+---
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## **Getting Started**
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### **Prerequisites**
+Before you begin, ensure you have the following installed:
+- [Flutter](https://flutter.dev/docs/get-started/install) (latest stable version)
+- An Android or iOS emulator, or a physical device for testing.
+
+---
+
+### **Clone the Repository**
+To clone and set up the project, run the following commands in your terminal:
+
+```bash
+git clone https://github.com/TiagoLustosa/todo_clean_arch
+cd todo_clean_arch
+flutter pub get
+
+### **Running the project**
+1. Start your android or iOS emulator:
+
+```bash
+flutter run
+
+### **On a Physical Device**
+1. Connect your device to your computer.
+2. Ensure USB debbuging is enabled.
+3. Run the project
+```bash
+flutter run
+
+### **Testing**
+To check if the application passes all unit tests:
+```bash
+flutter test
