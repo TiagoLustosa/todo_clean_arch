@@ -138,7 +138,7 @@ void main() {
           .thenAnswer((_) async => toggledTodo);
 
       // Executa o caso de uso
-      final usecase = await ToggleIsCompletedUsecaseImpl(
+      final usecase = ToggleIsCompletedUsecaseImpl(
           findTodoByIdUsecase: mockFindTodoByIdUsecase,
           updateTodoUsecase: mockUpdateTodoUsecase);
       final result = await usecase.call(todo);

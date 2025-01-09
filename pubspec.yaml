@@ -72,6 +72,7 @@ flutter:
     - assets/images/todo_done_bottom.svg
     - assets/images/todo_icon_bottom.svg
     - assets/images/todo_search_bottom.svg
+    - assets/images/no-internet.svg
     
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -123,6 +123,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: 'Flutter Todo',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           fontFamily: 'Urbanist',
           useMaterial3: true,
