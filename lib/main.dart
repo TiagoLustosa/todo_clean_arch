@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:todo_list/app/domain/entity/todo.dart';
 import 'package:todo_list/app/domain/usecase/todo/create_random_todos_usecase.dart';
 import 'package:todo_list/app/domain/usecase/todo/delete_all_todos_usecase.dart';
 import 'package:todo_list/app/domain/usecase/todo/delete_todo_usecase.dart';
@@ -19,6 +18,7 @@ import 'package:todo_list/app/domain/usecase/todo_impl/delete_all_todos_usecase_
 import 'package:todo_list/app/domain/usecase/todo_impl/delete_todo_usecase_impl.dart';
 import 'package:todo_list/app/domain/usecase/todo_impl/find_all_todos_usecase_impl.dart';
 import 'package:todo_list/app/domain/usecase/todo_impl/find_todo_by_id_impl.dart';
+import 'package:todo_list/app/domain/usecase/todo_impl/todo_usecases.dart';
 import 'package:todo_list/app/domain/usecase/todo_impl/toggle_is_completed_usecase_impl.dart';
 import 'package:todo_list/app/domain/usecase/todo_impl/update_todo_usecase.dart';
 import 'package:todo_list/app/presenter/view/pages/home_screen.dart';
@@ -78,31 +78,31 @@ void main() {
         ),
 
         // ChangeNotifierProxyProvider para o TodoViewModel
-        ChangeNotifierProxyProvider6<
-            CreateTodoUsecase,
-            FindAllTodosUsecase,
-            DeleteTodoUsecase,
-            DeleteAllTodosUsecase,
-            UpdateTodoUsecase,
-            ToggleIsCompletedUsecase,
-            TodoViewModel>(
-          create: (context) => TodoViewModel.empty(),
-          update: (_,
-                  createTodoUsecase,
-                  findAllTodosUsecase,
-                  deleteTodoUsecase,
-                  deleteAllTodosUsecase,
-                  updateTodoUsecase,
-                  toggleIsCompletedUsecase,
-                  previousViewModel) =>
-              TodoViewModel(
-            createTodoUsecase: createTodoUsecase,
-            findAllTodosUsecase: findAllTodosUsecase,
-            deleteTodoUsecase: deleteTodoUsecase,
-            deleteAllTodosUsecase: deleteAllTodosUsecase,
-            updateTodoUsecase: updateTodoUsecase,
-            toggleIsCompletedUsecase: toggleIsCompletedUsecase,
+        ProxyProvider<TodoRepository, TodoUseCases>(
+          update: (_, repository, __) => TodoUseCases(
+            createTodo: CreateTodoUsecaseImpl(todoRepository: repository),
+            createRandomTodos:
+                CreateRandomTodosUsecaseImpl(todoRepository: repository),
+            findAll: FindAllTodosUsecaseImpl(todoRepository: repository),
+            delete: DeleteTodoUsecaseImpl(todoRepository: repository),
+            deleteAll: DeleteAllTodosUsecaseImpl(todoRepository: repository),
+            update: UpdateTodoUsecaseImpl(todoRepository: repository),
+            toggle: ToggleIsCompletedUsecaseImpl(
+              updateTodoUsecase:
+                  UpdateTodoUsecaseImpl(todoRepository: repository),
+              findTodoByIdUsecase:
+                  FindTodoByIdUsecaseImpl(todoRepository: repository),
+            ),
           ),
+        ),
+
+        /// Presentation layer
+        ChangeNotifierProxyProvider<TodoUseCases, TodoViewModel>(
+          create: (_) => TodoViewModel(useCases: null), // temporary safe value
+          update: (_, useCases, viewModel) {
+            viewModel!.useCases = useCases;
+            return viewModel;
+          },
         ),
       ],
       child: MyApp(),
@@ -111,14 +111,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({super.key});
-  Todo todo = Todo(
-      title: 'Novo Todo',
-      description:
-          'Descricao do todo asdasda dasdas dasddsfsdf dsfdfs fsd fs dfs dfsdfsdfs fds fsdfsdfsdf sdfsdfs fsdfsdfsdfs as d o',
-      isCompleted: true);
-  Todo todo2 =
-      Todo(title: 'Novo Todo Vazioo', description: '', isCompleted: false);
+  const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

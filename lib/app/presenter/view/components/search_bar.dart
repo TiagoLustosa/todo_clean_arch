@@ -55,7 +55,7 @@ class SearchTodoBar extends StatelessWidget {
       ),
       hintStyle: WidgetStatePropertyAll(
         TextStyle(
-          color: CustomColors.statePurple.withOpacity(0.6),
+          color: CustomColors.statePurple.withValues(alpha: 0.6),
           fontSize: 16,
           fontWeight: FontWeight.w500,
         ),

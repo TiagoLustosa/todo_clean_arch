@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:todo_list/utils/custom_colors.dart';
 
 class MenuTop extends StatelessWidget {
@@ -49,15 +48,12 @@ class MenuTop extends StatelessWidget {
                   errorBuilder: (context, error, stackTrace) {
                     // Substitui a imagem em caso de erro
                     return ClipOval(
-                      child: SvgPicture.asset(
-                        'assets/images/no-internet.svg', // Certifique-se de que o arquivo SVG está no diretório correto
-                        width: 44,
-                        height: 44,
-                        fit: BoxFit.cover,
-                        colorFilter:
-                            ColorFilter.mode(Colors.red, BlendMode.srcIn),
+                      child: Icon(
+                        Icons.person,
+                        size: 44,
                       ),
                     );
+                    // return Container();
                   },
                 ),
               ),

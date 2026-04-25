@@ -1,60 +1,72 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:todo_list/app/presenter/view_model/todo_view_model.dart';
 import 'package:todo_list/app/presenter/view/components/no_todo_found.dart';
 import 'package:todo_list/app/presenter/view/components/todo_item.dart';
 import 'package:todo_list/app/presenter/view/components/welcome.dart';
+import 'package:todo_list/app/presenter/view_model/todo_view_model.dart';
 
-class TodoView extends StatelessWidget {
+class TodoView extends StatefulWidget {
   const TodoView({super.key});
 
   @override
+  State<TodoView> createState() => _TodoViewState();
+}
+
+class _TodoViewState extends State<TodoView> {
+  @override
+  void initState() {
+    super.initState();
+
+    Future.microtask(() {
+      if (!mounted) return;
+      context.read<TodoViewModel>().loadTodos();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final vm = context.watch<TodoViewModel>();
+
+    if (vm.connectionState == ConnectionState.waiting) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32.0),
-      child: FutureBuilder(
-        future: Provider.of<TodoViewModel>(context, listen: false).loadTodos(),
-        builder: (context, child) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Welcome(
-                text:
-                    'You\'ve got ${context.watch<TodoViewModel>().todos.length} tasks to do.',
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: Consumer<TodoViewModel>(
-                  builder: (context, viewModel, child) {
-                    if (viewModel.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          /// 🔥 Avoid calling watch() twice
+          Welcome(
+            text: 'You\'ve got ${vm.todos.length} tasks to do.',
+          ),
 
-                    if (viewModel.todos.isEmpty) {
-                      return Center(
-                        child: const NoTodoFound(text: 'No todos found.'),
-                      );
-                    }
-                    return SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          ...viewModel.todos.map(
-                            (todo) => TodoItem(
-                              todo: todo,
-                              onTap: () {
-                                viewModel.toggleIsCompletedTodo(todo);
-                              },
+          const SizedBox(height: 16),
+
+          Expanded(
+            child: vm.todos.isEmpty
+                ? const Center(
+                    child: NoTodoFound(text: 'No todos found.'),
+                  )
+                : SingleChildScrollView(
+                    child: Column(
+                      children: vm.todos
+                          .map(
+                            (todo) => Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: TodoItem(
+                                todo: todo,
+                                onTap: () {
+                                  vm.toggleIsCompletedTodo(todo);
+                                },
+                              ),
                             ),
                           )
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          );
-        },
+                          .toList(),
+                    ),
+                  ),
+          ),
+        ],
       ),
     );
   }

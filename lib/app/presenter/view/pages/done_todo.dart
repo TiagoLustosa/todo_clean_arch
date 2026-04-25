@@ -15,12 +15,17 @@ class DoneTodo extends StatefulWidget {
 }
 
 class _DoneTodoState extends State<DoneTodo> {
+  late TodoViewModel todoViewModel;
   final ScrollController _scrollController = ScrollController();
   @override
   void initState() {
     super.initState();
-    Future.microtask(() =>
-        Provider.of<TodoViewModel>(context, listen: false).finishedTodos());
+    todoViewModel = context.read<TodoViewModel>();
+
+    Future.microtask(() {
+      if (!mounted) return;
+      todoViewModel.loadTodos();
+    });
   }
 
   @override

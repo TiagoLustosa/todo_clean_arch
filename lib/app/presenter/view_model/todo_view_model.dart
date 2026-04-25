@@ -1,32 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:todo_list/app/domain/entity/todo.dart';
-import 'package:todo_list/app/domain/usecase/todo/create_todo_usecase.dart';
-import 'package:todo_list/app/domain/usecase/todo/delete_all_todos_usecase.dart';
-import 'package:todo_list/app/domain/usecase/todo/delete_todo_usecase.dart';
-import 'package:todo_list/app/domain/usecase/todo/find_all_todos_usecase.dart';
-import 'package:todo_list/app/domain/usecase/todo/toggle_is_completed_usecase.dart';
-import 'package:todo_list/app/domain/usecase/todo/update_todo_usecase.dart';
+import 'package:todo_list/app/domain/usecase/todo_impl/todo_usecases.dart';
+import 'package:todo_list/utils/random_todos.dart';
 
 class TodoViewModel extends ChangeNotifier {
-  CreateTodoUsecase? createTodoUsecase;
-  DeleteTodoUsecase? deleteTodoUsecase;
-  FindAllTodosUsecase? findAllTodosUsecase;
-  DeleteAllTodosUsecase? deleteAllTodosUsecase;
-  UpdateTodoUsecase? updateTodoUsecase;
-  ToggleIsCompletedUsecase? toggleIsCompletedUsecase;
+  TodoUseCases? useCases;
 
-  TodoViewModel({
-    this.createTodoUsecase,
-    this.findAllTodosUsecase,
-    this.deleteTodoUsecase,
-    this.deleteAllTodosUsecase,
-    this.updateTodoUsecase,
-    this.toggleIsCompletedUsecase,
-  });
-  factory TodoViewModel.empty() {
-    return TodoViewModel();
-  }
-
+  TodoViewModel({required this.useCases});
   List<Todo> _todos = [];
   List<Todo> _filteredTodos = [];
   List<Todo> _completedTodos = [];
@@ -42,7 +22,7 @@ class TodoViewModel extends ChangeNotifier {
   Future<void> loadTodos() async {
     try {
       _connectionState = ConnectionState.waiting;
-      _todos = await findAllTodosUsecase!.call('null');
+      _todos = await useCases!.findAll.call('null');
       _connectionState = ConnectionState.done;
       notifyListeners();
     } catch (error) {
@@ -52,18 +32,28 @@ class TodoViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> createTodo(String title, String description) async {
+  Future<void> createTodo(Todo newTodo) async {
     try {
       _connectionState = ConnectionState.waiting;
 
-      final newTodo = Todo(
-        title: title,
-        description: description,
-        isCompleted: false,
-      );
-
-      await createTodoUsecase!(newTodo);
+      await useCases!.createTodo(newTodo);
       await loadTodos();
+      _connectionState = ConnectionState.done;
+      notifyListeners();
+    } catch (error) {
+      _connectionState = ConnectionState.none;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<void> createRandomTodos() async {
+    try {
+      _connectionState = ConnectionState.waiting;
+
+      await useCases!.createRandomTodos(RandomTodos.rawQuery);
+      await loadTodos();
+      await finishedTodos();
       _connectionState = ConnectionState.done;
       notifyListeners();
     } catch (error) {
@@ -76,7 +66,7 @@ class TodoViewModel extends ChangeNotifier {
   Future<void> deleteTodo(Todo todo) async {
     try {
       _connectionState = ConnectionState.waiting;
-      await deleteTodoUsecase!(todo);
+      await useCases!.delete(todo);
       await finishedTodos();
       _connectionState = ConnectionState.done;
       notifyListeners();
@@ -90,7 +80,7 @@ class TodoViewModel extends ChangeNotifier {
     try {
       _connectionState = ConnectionState.waiting;
 
-      await deleteAllTodosUsecase!('null');
+      await useCases!.deleteAll('null');
       _todos.clear();
       _filteredTodos.clear();
 
@@ -123,7 +113,7 @@ class TodoViewModel extends ChangeNotifier {
   Future<void> toggleIsCompletedTodo(Todo todo) async {
     try {
       Todo toggledTodo = todo.copyWith(isCompleted: !todo.isCompleted);
-      await toggleIsCompletedUsecase!(toggledTodo);
+      await useCases!.toggle(toggledTodo);
 
       await finishedTodos();
       notifyListeners();

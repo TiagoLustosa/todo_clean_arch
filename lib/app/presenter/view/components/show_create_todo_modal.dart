@@ -119,7 +119,7 @@ void showCreateTodoModal(BuildContext context) {
                     description: descriptionController.text,
                   );
 
-                  viewModel.createTodoUsecase!(todo);
+                  viewModel.createTodo(todo);
                   viewModel.loadTodos();
                   Navigator.pop(context);
                 },

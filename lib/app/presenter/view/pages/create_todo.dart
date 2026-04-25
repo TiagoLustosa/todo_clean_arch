@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todo_list/app/presenter/view_model/todo_view_model.dart';
-import 'package:todo_list/app/domain/usecase/todo/create_random_todos_usecase.dart';
 import 'package:todo_list/app/presenter/view/components/create_task_icon_button.dart';
 import 'package:todo_list/app/presenter/view/components/no_todo_found.dart';
 import 'package:todo_list/app/presenter/view/components/show_create_todo_modal.dart';
@@ -15,11 +14,15 @@ class CreateTodo extends StatefulWidget {
 }
 
 class _CreateTodoState extends State<CreateTodo> {
+  late TodoViewModel todoViewModel;
   @override
   void initState() {
     super.initState();
-    Future.microtask(
-        () => Provider.of<TodoViewModel>(context, listen: false).loadTodos());
+    todoViewModel = context.read<TodoViewModel>();
+    Future.microtask(() {
+      if (!mounted) return;
+      todoViewModel.loadTodos();
+    });
   }
 
   @override
@@ -38,14 +41,10 @@ class _CreateTodoState extends State<CreateTodo> {
               const Welcome(text: 'Create tasks to achieve more.'),
               TextButton(
                 onPressed: () async {
-                  await Provider.of<CreateRandomTodosUsecase>(context,
-                          listen: false)
-                      .call('noParams');
+                  await todoViewModel.createRandomTodos();
                   // Recarrega a lista após criar todos aleatórios
-                  if (mounted) {
-                    Provider.of<TodoViewModel>(context, listen: false)
-                        .loadTodos();
-                  }
+                  if (!mounted) return;
+                  todoViewModel.loadTodos();
                 },
                 child: const Text(
                   'Hidden Button to create random todos',
